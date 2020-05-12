@@ -9,10 +9,9 @@ on:
 name: test
 
 jobs:
-  R-CMD-check:
+  setup-r:
     runs-on: ubuntu-16.04
     env:
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: https://packagemanager.rstudio.com/cran/__linux__/xenial/latest
     steps:
       - uses: actions/checkout@v2
@@ -22,4 +21,20 @@ jobs:
       - name: Test RSPM
         run: |
           source("https://docs.rstudio.com/rspm/admin/check-user-agent.R")
+        shell: Rscript {0}
+  rocker:
+    runs-on: ubuntu-18.04
+    container:
+      image: "rocker/rstudio:3.6.3-ubuntu18.04"
+    env:
+      RSPM: https://packagemanager.rstudio.com/all/__linux__/bionic/latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test RSPM
+        run: |
+          source("https://docs.rstudio.com/rspm/admin/check-user-agent.R")
+        shell: Rscript {0}
+      - name: Test Install a Binary
+        run: |-
+          install.packages("remotes", repos = Sys.getenv('RSPM'))
         shell: Rscript {0}
